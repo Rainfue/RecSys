@@ -4,6 +4,7 @@ from math import log        # Импортирую логарифм
 from math import e
 from random import randint
 from tqdm import tqdm
+import matplotlib.pyplot as plt
 
 
 # Построение класса с моделью
@@ -105,6 +106,7 @@ class LogisticRegression():
     def f1_score(self, precision, recall):
         return 2 * (precision * recall)/(precision + recall)
 
+    # -----------------------------------------------
     # Функция для обучения модели
     def train(self):
         '''Ф-я для обучения модели на своих данных'''
@@ -137,6 +139,7 @@ class LogisticRegression():
             f1_score = round(self.f1_score(precision, recall), 4)
 
             progress_bar.set_postfix({
+                'epoch': f'{epoch}',
                 'error': f'{self.logistic_error():.4f}',
                 'accuracy': accuracy,
                 'precision': precision,
@@ -149,36 +152,97 @@ class LogisticRegression():
 
         print(f'Финальные веса: {self.weights}')
 
+    # def visualize_predicts(self):
+    #     outputs = []
+    #     for i, point in enumerate(self.inputs):
+    #         z = self.weighted_z(point)
+    #         output = self.logistic_function(z)
+    #         outputs.append(output)
+
+    #     # Разделяем точки на два класса (0 и 1) по порогу 0.5
+    #     class_0 = [point for point, output in zip(self.inputs, outputs) if output < 0.5]
+    #     class_1 = [point for point, output in zip(self.inputs, outputs) if output >= 0.5]
+
+    #     # Визуализация
+    #     plt.figure(figsize=(8, 6))
+        
+    #     # Точки класса 0 (красные)
+    #     if class_0:
+    #         x0, y0 = zip(*class_0)
+    #         plt.scatter(x=x0, y=y0, color='red', label='Class 0 (Predicted)')
+        
+    #     # Точки класса 1 (синие)
+    #     if class_1:
+    #         x1, y1 = zip(*class_1)
+    #         plt.scatter(x=x1, y=y1, color='blue', label='Class 1 (Predicted)')
+        
+    #     plt.xlabel('X')
+    #     plt.ylabel('Y')
+    #     plt.title('Model Predictions')
+    #     plt.legend()
+    #     plt.grid(True)
+    #     plt.savefig("predicted_plot.png", dpi=300)
     def visualize_predicts(self):
+        import numpy as np
+        from sklearn.decomposition import PCA
+        
+        # Преобразуем входные данные в numpy array
+        X = np.array(self.inputs)
+        
+        # Если данные одномерные, добавляем нулевую ось Y
+        if X.shape[1] == 1:
+            points_2d = np.hstack((X, np.zeros((X.shape[0], 1))))
+        
+        # Для 2D данных используем как есть
+        elif X.shape[1] == 2:
+            points_2d = X
+        
+        # Для многомерных данных применяем PCA
+        else:
+            pca = PCA(n_components=2)
+            points_2d = pca.fit_transform(X)
+            print(f"Объясненная дисперсия после PCA: {pca.explained_variance_ratio_.sum():.2f}")
+        
+        # Получаем предсказания модели
         outputs = []
-        for i, point in enumerate(self.inputs):
+        for point in self.inputs:
             z = self.weighted_z(point)
             output = self.logistic_function(z)
             outputs.append(output)
-
-        # Разделяем точки на два класса (0 и 1) по порогу 0.5
-        class_0 = [point for point, output in zip(self.inputs, outputs) if output < 0.5]
-        class_1 = [point for point, output in zip(self.inputs, outputs) if output >= 0.5]
-
+        
+        # Разделяем точки по классам
+        class_0 = []
+        class_1 = []
+        
+        for i, point in enumerate(points_2d):
+            if outputs[i] < 0.5:
+                class_0.append(point)
+            else:
+                class_1.append(point)
+        
         # Визуализация
-        plt.figure(figsize=(8, 6))
+        plt.figure(figsize=(10, 8))
         
-        # Точки класса 0 (красные)
         if class_0:
-            x0, y0 = zip(*class_0)
-            plt.scatter(x=x0, y=y0, color='red', label='Class 0 (Predicted)')
+            class_0 = np.array(class_0)
+            plt.scatter(class_0[:, 0], class_0[:, 1], color='red', 
+                    label='Class 0 (Predicted)', alpha=0.7)
         
-        # Точки класса 1 (синие)
         if class_1:
-            x1, y1 = zip(*class_1)
-            plt.scatter(x=x1, y=y1, color='blue', label='Class 1 (Predicted)')
+            class_1 = np.array(class_1)
+            plt.scatter(class_1[:, 0], class_1[:, 1], color='blue', 
+                    label='Class 1 (Predicted)', alpha=0.7)
         
-        plt.xlabel('X')
-        plt.ylabel('Y')
-        plt.title('Model Predictions')
+        plt.xlabel('Principal Component 1')
+        plt.ylabel('Principal Component 2')
+        plt.title('Model Predictions (2D Projection)')
         plt.legend()
         plt.grid(True)
         plt.savefig("predicted_plot.png", dpi=300)
+        plt.show()
+    
+    def predict(self, X: list):
+        return self.logistic_function(self.weighted_z(X))
         
 # -------------------------------------------------------------------
 
