@@ -182,64 +182,64 @@ class LogisticRegression():
     #     plt.legend()
     #     plt.grid(True)
     #     plt.savefig("predicted_plot.png", dpi=300)
-    def visualize_predicts(self):
-        import numpy as np
-        from sklearn.decomposition import PCA
+    # def visualize_predicts(self):
+    #     import numpy as np
+    #     # from sklearn.decomposition import PCA
         
-        # Преобразуем входные данные в numpy array
-        X = np.array(self.inputs)
+    #     # Преобразуем входные данные в numpy array
+    #     X = np.array(self.inputs)
         
-        # Если данные одномерные, добавляем нулевую ось Y
-        if X.shape[1] == 1:
-            points_2d = np.hstack((X, np.zeros((X.shape[0], 1))))
+    #     # Если данные одномерные, добавляем нулевую ось Y
+    #     if X.shape[1] == 1:
+    #         points_2d = np.hstack((X, np.zeros((X.shape[0], 1))))
         
-        # Для 2D данных используем как есть
-        elif X.shape[1] == 2:
-            points_2d = X
+    #     # Для 2D данных используем как есть
+    #     elif X.shape[1] == 2:
+    #         points_2d = X
         
-        # Для многомерных данных применяем PCA
-        else:
-            pca = PCA(n_components=2)
-            points_2d = pca.fit_transform(X)
-            print(f"Объясненная дисперсия после PCA: {pca.explained_variance_ratio_.sum():.2f}")
+    #     # Для многомерных данных применяем PCA
+    #     else:
+    #         pca = PCA(n_components=2)
+    #         points_2d = pca.fit_transform(X)
+    #         print(f"Объясненная дисперсия после PCA: {pca.explained_variance_ratio_.sum():.2f}")
         
-        # Получаем предсказания модели
-        outputs = []
-        for point in self.inputs:
-            z = self.weighted_z(point)
-            output = self.logistic_function(z)
-            outputs.append(output)
+    #     # Получаем предсказания модели
+    #     outputs = []
+    #     for point in self.inputs:
+    #         z = self.weighted_z(point)
+    #         output = self.logistic_function(z)
+    #         outputs.append(output)
         
-        # Разделяем точки по классам
-        class_0 = []
-        class_1 = []
+    #     # Разделяем точки по классам
+    #     class_0 = []
+    #     class_1 = []
         
-        for i, point in enumerate(points_2d):
-            if outputs[i] < 0.5:
-                class_0.append(point)
-            else:
-                class_1.append(point)
+    #     for i, point in enumerate(points_2d):
+    #         if outputs[i] < 0.5:
+    #             class_0.append(point)
+    #         else:
+    #             class_1.append(point)
         
-        # Визуализация
-        plt.figure(figsize=(10, 8))
+    #     # Визуализация
+    #     plt.figure(figsize=(10, 8))
         
-        if class_0:
-            class_0 = np.array(class_0)
-            plt.scatter(class_0[:, 0], class_0[:, 1], color='red', 
-                    label='Class 0 (Predicted)', alpha=0.7)
+    #     if class_0:
+    #         class_0 = np.array(class_0)
+    #         plt.scatter(class_0[:, 0], class_0[:, 1], color='red', 
+    #                 label='Class 0 (Predicted)', alpha=0.7)
         
-        if class_1:
-            class_1 = np.array(class_1)
-            plt.scatter(class_1[:, 0], class_1[:, 1], color='blue', 
-                    label='Class 1 (Predicted)', alpha=0.7)
+    #     if class_1:
+    #         class_1 = np.array(class_1)
+    #         plt.scatter(class_1[:, 0], class_1[:, 1], color='blue', 
+    #                 label='Class 1 (Predicted)', alpha=0.7)
         
-        plt.xlabel('Principal Component 1')
-        plt.ylabel('Principal Component 2')
-        plt.title('Model Predictions (2D Projection)')
-        plt.legend()
-        plt.grid(True)
-        plt.savefig("predicted_plot.png", dpi=300)
-        plt.show()
+    #     plt.xlabel('Principal Component 1')
+    #     plt.ylabel('Principal Component 2')
+    #     plt.title('Model Predictions (2D Projection)')
+    #     plt.legend()
+    #     plt.grid(True)
+    #     plt.savefig("predicted_plot.png", dpi=300)
+        # plt.show()
     
     def predict(self, X: list):
         return self.logistic_function(self.weighted_z(X))
